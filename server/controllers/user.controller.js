@@ -3,6 +3,8 @@ import { catchAsyncError } from "../middlewares/catchAsyncError.middleware.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import { generateJWTToken } from "../utils/jwtToken.js";
+import cloudinary from "cloudinary";
+
 
 export const signup = catchAsyncError(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -38,7 +40,7 @@ export const signup = catchAsyncError(async (req, res, next) => {
     name,
     email,
     password: hashedPassword,
-    avatar: { public_id: "default_avatar", url: "default_avatar_url" },
+    avatar: { public_id: "", url: "" },
   });
 
   generateJWTToken(user, "User registered successfully", 201, res);
@@ -91,6 +93,74 @@ export const signout = catchAsyncError(async (req, res, next) => {
     });
 });
 
-export const getUser = catchAsyncError(async (req, res, next) => {});
+export const getUser = catchAsyncError(async (req, res, next) => {
+    const user = req.user;
+    res.status(200).json({
+        success: true,
+        user,
+    })  
+});
 
-export const updateProfile = catchAsyncError(async (req, res, next) => {});
+export const updateProfile = catchAsyncError(async (req, res, next) => {
+  const { name, email } = req.body;
+  // console.log(name, email);
+  if (!name || !email || name.trim().length === 0 || email.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Name and email are required",
+    });
+  }
+
+  const data = { name, email };
+
+  if (req.files && req.files.avatar && req.files.avatar.tempFilePath) {
+    const avatar = req.files.avatar;
+    try {
+      const oldAvatarPublicId = req.user?.avatar?.public_id;
+      if (oldAvatarPublicId && oldAvatarPublicId !== "") {
+        await cloudinary.uploader.destroy(oldAvatarPublicId);
+      }
+      if (!avatar || !avatar.tempFilePath) {
+  return res.status(400).json({
+    success: false,
+    message: "Avatar file is missing",
+  });
+}
+
+      const cloudinaryResponse = await cloudinary.uploader.upload(
+        avatar.tempFilePath,
+        {
+          folder: "hiapp_user_avatars",
+          transformation: [
+            { width: 200, height: 200, crop: "limit" },
+            { quality: "auto" },
+            { fetch_format: "auto" },
+          ],
+        }
+      );
+
+      data.avatar = {
+        public_id: cloudinaryResponse.public_id,
+        url: cloudinaryResponse.secure_url,
+      };
+    } catch (error) {
+        console.error("Cloudinary upload error", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Cloudinary upload error",
+      });
+    }
+    
+  }
+
+  const user = await User.findByIdAndUpdate(req.user._id, data, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Profile updated successfully",
+    user,
+  });
+});
