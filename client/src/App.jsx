@@ -2,9 +2,10 @@ import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser, setOnlineUsers } from "./store/slices/authSlice.js";
+import { getUser, setOnlineUsers, logout } from "./store/slices/authSlice.js";
 import { useEffect } from "react";
 import { connectSocket, disconnectSocket } from "./lib/socket";
+import { axiosInstance } from "./lib/axios";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx"
 import Home from "./pages/Home.jsx"
@@ -19,7 +20,23 @@ const App = () => {
 
   useEffect(() => {
     dispatch(getUser())
-  }, [getUser])
+  }, [dispatch])
+
+  useEffect(() => {
+    const interceptor = axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          dispatch(logout());
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axiosInstance.interceptors.response.eject(interceptor);
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (authUser) {

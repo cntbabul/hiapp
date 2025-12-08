@@ -4,7 +4,7 @@ import { isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/", isAuthenticated, getAllUsers);
+router.get("/users", isAuthenticated, getAllUsers);
 router.get("/:id", isAuthenticated, getMessages);
 router.post("/send/:id", isAuthenticated, sendMessages);
 

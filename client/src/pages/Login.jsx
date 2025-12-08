@@ -1,7 +1,11 @@
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { login } from "../store/slices/authSlice";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import AuthImagePattern from "../components/AuthImagePattern";
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -13,7 +17,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // dispatch(login(formData));
+    dispatch(login(formData));
   }
   return (<>
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white">
@@ -31,8 +35,72 @@ const Login = () => {
 
         </div>
         {/* Login from  */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <div className="relative">
+              <span className="absolute left-2 top-3 flex items-center text-gray-400">
+                <Mail className="w-5 h-5" />
+              </span>
+              <input
+                type="email"
+                className="w-full border border-gray-300 rounded-md  py-2 pl-10 pr-3 focus:outline-none focus:ring-blue-500"
+                placeholder="Enter Your Email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <span className="absolute left-2 top-3 flex items-center text-gray-400">
+                <Lock className="w-5 h-5" />
+              </span>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="w-full border border-gray-300 rounded-md  py-2 pl-10 pr-3 focus:outline-none focus:ring-blue-500"
+                placeholder="* * * * * * * "
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <Eye /> : <EyeOff />}
+              </button>
+            </div>
+          </div>
 
+          {/* submit button  */}
+          <button type="submit"
+            disabled={isLoggingIn}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-transition duration-200 flex justify-center items-center">
+            {isLoggingIn ? (<><Loader2 className="animate-spin" /> Loading ..</>) : ("Sign-In")}
+          </button>
+
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500">
+            Don&apos;t have an account?{" "}
+            <Link to={"/register"} className="text-blue-500 font-medium">
+              Register
+            </Link>
+          </p>
+          <div />
+
+
+        </div>
       </div>
+      {/* Right side image  */}
+      <AuthImagePattern title={"Welcome back !"} subtitle={"Sign in to continue your conversation catch up with your message"} />
+
+
     </div>
   </>);
 };

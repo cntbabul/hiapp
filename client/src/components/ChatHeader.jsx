@@ -1,7 +1,42 @@
 import { X } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedUser } from "../store/slices/chatSlice";
 
 const ChatHeader = () => {
-  return <></>;
+  const { selectedUser } = useSelector((state) => state.chat);
+  const { onlineUsers } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  return (
+    <>
+      <div className="p-3 border-b bg-gray-200 ring-1 ring-gray-300 ">
+        <div className="flex items-center justify-between">
+          {/* user info  */}
+          <div className="relative w-10 h-10">
+            <img
+              src={selectedUser?.avatar?.url || "/avatar-holder.avif"}
+              alt="avatar-holder"
+              className="w-full h-full object-cover rounded-full"
+            />
+            {onlineUsers.includes(selectedUser?._id) && (
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-white border-2 rounded-full" />
+            )}
+          </div>
+          {/* name and online status  */}
+          <div>
+            <h3 className="font-medium text-base text-black">
+              {selectedUser?.name}
+            </h3>
+            <p className="text-sm text-black">
+              {onlineUsers.includes(selectedUser?._id) ? "Online" : "Offline"}
+            </p>
+          </div>
+
+
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default ChatHeader;

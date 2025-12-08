@@ -85,7 +85,7 @@ export const signout = catchAsyncError(async (req, res, next) => {
       maxAge: 0,
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development" ? true : false,
-      sameSite: "strict",
+      sameSite: "lax",
     })
     .json({
       success: true,
@@ -94,11 +94,11 @@ export const signout = catchAsyncError(async (req, res, next) => {
 });
 
 export const getUser = catchAsyncError(async (req, res, next) => {
-    const user = req.user;
-    res.status(200).json({
-        success: true,
-        user,
-    })  
+  const user = req.user;
+  res.status(200).json({
+    success: true,
+    user,
+  })
 });
 
 export const updateProfile = catchAsyncError(async (req, res, next) => {
@@ -121,11 +121,11 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
         await cloudinary.uploader.destroy(oldAvatarPublicId);
       }
       if (!avatar || !avatar.tempFilePath) {
-  return res.status(400).json({
-    success: false,
-    message: "Avatar file is missing",
-  });
-}
+        return res.status(400).json({
+          success: false,
+          message: "Avatar file is missing",
+        });
+      }
 
       const cloudinaryResponse = await cloudinary.uploader.upload(
         avatar.tempFilePath,
@@ -144,13 +144,13 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
         url: cloudinaryResponse.secure_url,
       };
     } catch (error) {
-        console.error("Cloudinary upload error", error);
+      console.error("Cloudinary upload error", error);
       return res.status(500).json({
         success: false,
         message: error.message || "Cloudinary upload error",
       });
     }
-    
+
   }
 
   const user = await User.findByIdAndUpdate(req.user._id, data, {

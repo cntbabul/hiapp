@@ -9,7 +9,7 @@ export const generateJWTToken = async (user, message, statusCode, res) => {
     .cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development" ? true : false,
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000,
     })
     .json({

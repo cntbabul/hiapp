@@ -17,18 +17,18 @@ export const errorMiddleware = (err, req, res, next) => {
 
     if (err.name === "JsonWebTokenError") {
         const message = `JsonWebTokenError: Invalid Token`;
-        err = new ErrorHandler(message, 400);   
+        err = new ErrorHandler(message, 401);
     }
 
     if (err.name === "TokenExpiredError") {
         const message = `TokenExpiredError: Token Expired`;
-        err = new ErrorHandler(message, 400);   
+        err = new ErrorHandler(message, 401);
     }
 
     if (err.name === "ValidationError") {
         const message = `ValidationError: ${err.message}`;
-        err = new ErrorHandler(message, 400);   
-    }   
+        err = new ErrorHandler(message, 400);
+    }
 
     if (err.code === 11000) {
         const message = `Duplicate ${Object.keys(err.keyValue)} Entered`;
