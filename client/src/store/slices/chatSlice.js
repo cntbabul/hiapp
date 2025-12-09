@@ -27,10 +27,9 @@ export const getMessages = createAsyncThunk(
 
 export const sendMessage = createAsyncThunk(
     "chat/sendMessage",
-    async (messageData, thunkAPI) => {
+    async ({ id, data }, thunkAPI) => {
         try {
-            const { chat } = thunkAPI.getState();
-            const res = await axiosInstance.post(`/message/send/${chat.selectedUser._id}`, messageData);
+            const res = await axiosInstance.post(`/message/send/${id}`, data);
             return res.data;
         } catch (error) {
             toast.error(error.response?.data?.message || "Message not sent");
@@ -80,6 +79,7 @@ const chatSlice = createSlice({
             })
             .addCase(sendMessage.fulfilled, (state, action) => {
                 state.messages.push(action.payload.newMessage);
+                state.isMessagesLoading = false;
             })
             .addCase(sendMessage.rejected, (state) => {
                 state.isMessagesLoading = false;

@@ -56,7 +56,7 @@ export const updateProfile = createAsyncThunk("user/update-profile", async (data
         const res = await axiosInstance.put("/user/update-profile", data);
         toast.success("Profile updated successfully");
         connectSocket(res.data.user);
-        return res.data;
+        return res.data.user;
     } catch (error) {
         toast.error(error.response.data.message);
         return thunkAPI.rejectWithValue(error.response.data.message);

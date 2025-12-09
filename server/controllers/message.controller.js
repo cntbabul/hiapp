@@ -27,8 +27,8 @@ export const getMessages = catchAsyncError(async (req, res, next) => {
 
     const messages = await MessageChannel.find({
         $or: [
-            { sender: myId, receiver: receiverId },
-            { sender: receiverId, receiver: myId },
+            { senderId: myId, receiverId: receiverId },
+            { senderId: receiverId, receiverId: myId },
         ],
     }).sort({ createdAt: 1 });
 
@@ -51,7 +51,7 @@ export const sendMessages = catchAsyncError(async (req, res, next) => {
             message: "Receiver not found",
         });
     }
-    const sanitizedText = text.trim() || "";
+    const sanitizedText = (text || "").trim();
     if (!sanitizedText && !media) {
         return res.status(400).json({
             success: false,

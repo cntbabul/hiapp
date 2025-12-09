@@ -3,19 +3,20 @@ import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser, setOnlineUsers, logout } from "./store/slices/authSlice.js";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { connectSocket, disconnectSocket } from "./lib/socket";
 import { axiosInstance } from "./lib/axios";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx"
-import Home from "./pages/Home.jsx"
-import Login from "./pages/Login.jsx"
-import Register from "./pages/Register.jsx"
-import Profile from "./pages/Profile.jsx"
-import { ToastContainer } from "react-toastify";
+import Navbar from "./components/Navbar.jsx";
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Profile from "./pages/Profile.jsx";
+import { ToastContainer, toast } from "react-toastify";
 
 const App = () => {
   const { authUser, isCheckingAuth } = useSelector((state) => state.auth);
+  const { selectedUser } = useSelector((state) => state.chat);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -38,6 +39,11 @@ const App = () => {
     };
   }, [dispatch]);
 
+  const selectedUserRef = useRef(selectedUser);
+  useEffect(() => {
+    selectedUserRef.current = selectedUser;
+  }, [selectedUser]);
+
   useEffect(() => {
     if (authUser) {
       const socket = connectSocket(authUser._id);
@@ -45,9 +51,14 @@ const App = () => {
       socket.on("getOnlineUsers", (users) => {
         dispatch(setOnlineUsers(users))
       })
+
+      socket.on("newMessage", (newMessage) => {
+        if (newMessage.senderId !== selectedUserRef.current?._id) {
+          toast.info("New message received");
+        }
+      })
       return () => disconnectSocket();
     }
-
   }, [authUser]);
   if (isCheckingAuth && !authUser) {
     return (

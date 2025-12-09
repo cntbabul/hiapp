@@ -46,8 +46,8 @@ const Profile = () => {
           {/* avatar upload  */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
-              <img src={selectedImage || formData.avatar || "/avatar-holde.avif"} alt="avatar" className="w-32 h-32 rounded-full object-cover object-top border-4 border-gray-200" />
-              <label htmlFor="avatar" className={`absolute bottom-0 right-0 bg-gray-800 hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`} >
+              <img src={selectedImage || authUser.avatar?.url || "/avatar-holde.avif"} alt="avatar" className="w-32 h-32 rounded-full object-cover object-top border-4 border-gray-200" />
+              <label htmlFor="avatar-upload" className={`absolute bottom-0 right-0 bg-gray-800 hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`} >
                 <Camera className="w-6 h-6 text-white" />
                 <input type="file" id="avatar-upload" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={isUpdatingProfile} />
 
@@ -84,7 +84,7 @@ const Profile = () => {
             <h2 className="text-xl font-medium text-gray-800 mb-4">Account Information</h2>
             <div className="flex items-center justify-between py-2 border-b border-gray-200">
               <span>Member Since</span>
-              <span>{authUser.createdAt?.split("|")[0]}</span>
+              <span>{authUser.createdAt?.split("T")[0]}</span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Account Status</span>
